@@ -223,7 +223,7 @@ int lwqq_http_do_request_async(LwqqHttpRequest* request)
     char *buf;
     int have_read_bytes = 0;
     char **resp = &request->response;
-    int len=0;
+    int len = 0;
 
     buf = ghttp_get_body(request->req);
     if (buf) {

@@ -33,7 +33,7 @@ void* lwqq_async_thread(void* data)
 }
 void check_start_thread(){
     if(!running)
-        pthread_create(&th,lwqq_async_thread,NULL,"thread");
+        pthread_create(&th, NULL, lwqq_async_thread, "thread");
 }
 
 void lwqq_async_add_listener(LwqqClient* lc,ListenerType type,ASYNC_CALLBACK callback,void*data)
@@ -48,6 +48,8 @@ void lwqq_async_add_listener(LwqqClient* lc,ListenerType type,ASYNC_CALLBACK cal
             async->friends_all_complete[async->friends_all_len] = callback;
             async->friends_all_data[async->friends_all_len++] = data;
             break;
+    default:
+        break;
     }
 }
 #define FOREACH_CALLBACK(prefix) \
@@ -72,6 +74,8 @@ void lwqq_async_callback(async_watch_data* data){
         case FRIENDS_ALL_COMPLETE:
             FOREACH_CALLBACK(friends_all);
             break;
+    default:
+        break;
     }
 
 }
@@ -80,6 +84,8 @@ int lwqq_async_has_listener(LwqqClient* lc,ListenerType type)
     switch(type){
         case LOGIN_COMPLETE:
             return lc->async->login_complete!=NULL;
+            break;
+    default:
             break;
     }
     return 0;

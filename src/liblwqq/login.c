@@ -401,7 +401,6 @@ static int sava_cookie(LwqqClient *lc, LwqqHttpRequest *req, LwqqErrorCode *err)
 
 static void do_login_async(LwqqClient* lc,LwqqHttpRequest* req,void* data)
 {
-    LwqqErrorCode error;
     LwqqErrorCode *err =& lc->async->last_err;
 
     char *response = NULL;
