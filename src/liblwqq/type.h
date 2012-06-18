@@ -137,7 +137,6 @@ typedef struct LwqqClient {
     LwqqCookies *cookies;
     struct LwqqAsyncListener *async;
     LIST_HEAD(, LwqqBuddy) friends; /**< QQ friends */
-    int update_friends_done;    /**< Whether have updated friends */
     LIST_HEAD(, LwqqFriendCategory) categories; /**< QQ friends categories */
     LIST_HEAD(, LwqqGroup) groups; /**< QQ groups */
     LwqqRecvMsgList *msg_list;
