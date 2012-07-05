@@ -307,7 +307,8 @@ static int lwqq_http_do_request(LwqqHttpRequest *request, int method, char *body
         s_free(outdata);
         have_read_bytes = total;
     }
-    s_free(enc_type);
+    if (enc_type)
+        s_free(enc_type);
 
     /* OK, done */
     if ((*resp)[have_read_bytes -1] != '\0') {
