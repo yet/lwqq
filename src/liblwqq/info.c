@@ -121,7 +121,6 @@ static void parse_categories_child(LwqqClient *lc, json_t *json)
     /* add the default category */
     cate = s_malloc0(sizeof(*cate));
     cate->index = 0;
-    cate->index = 1;
     cate->name = s_strdup("My Friends");
     LIST_INSERT_HEAD(&lc->categories, cate, entries);
 }
@@ -150,13 +149,13 @@ static void parse_info_child(LwqqClient *lc, json_t *json)
     
     json = json->child;    //point to the array.[]
     for (cur = json->child; cur != NULL; cur = cur->next) {
-        buddy = s_malloc0(sizeof(*buddy));
+        buddy = lwqq_buddy_new();
         buddy->face = s_strdup(json_parse_simple_value(cur, "face"));
         buddy->flag = s_strdup(json_parse_simple_value(cur, "flag"));
         buddy->nick = s_strdup(json_parse_simple_value(cur, "nick"));
         buddy->uin = s_strdup(json_parse_simple_value(cur, "uin"));
                                 
-        /* Add to categories list */
+        /* Add to buddies list */
         LIST_INSERT_HEAD(&lc->friends, buddy, entries);
     }
 }
@@ -228,6 +227,7 @@ static void parse_friends_child(LwqqClient *lc, json_t *json)
 //    {"flag":0,"uin":1907104721,"categories":0}
     json = json->child;    //point to the array.[]
     for (cur = json->child; cur != NULL; cur = cur->next) {
+        LwqqFriendCategory *c_entry;
         uin = json_parse_simple_value(cur, "uin");
         cate_index = json_parse_simple_value(cur, "categories");
         if (!uin || !cate_index)
@@ -237,6 +237,11 @@ static void parse_friends_child(LwqqClient *lc, json_t *json)
         if (!buddy)
             continue;
 
+        LIST_FOREACH(c_entry, &lc->categories, entries) {
+            if (c_entry->index == atoi(cate_index)) {
+                c_entry->count++;
+            }
+        }
         buddy->cate_index = s_strdup(cate_index);
     }
 }
@@ -256,10 +261,6 @@ void lwqq_info_get_friends_info(LwqqClient *lc, LwqqErrorCode *err)
     json_t *json = NULL, *json_tmp;
     char *cookies;
 
-    if (!err) {
-        return ;
-    }
-    
     /* Create post data: {"h":"hello","vfwebqq":"4354j53h45j34"} */
     create_post_data(lc, msg, sizeof(msg));
 
@@ -280,7 +281,8 @@ void lwqq_info_get_friends_info(LwqqClient *lc, LwqqErrorCode *err)
     }
     ret = req->do_request(req, 1, msg);
     if (ret || req->http_code != 200) {
-        *err = LWQQ_EC_HTTP_ERROR;
+        if (err)
+            *err = LWQQ_EC_HTTP_ERROR;
         goto done;
     }
 
@@ -292,7 +294,8 @@ void lwqq_info_get_friends_info(LwqqClient *lc, LwqqErrorCode *err)
     ret = json_parse_document(&json, req->response);
     if (ret != JSON_OK) {
         lwqq_log(LOG_ERROR, "Parse json object of friends error: %s\n", req->response);
-        *err = LWQQ_EC_ERROR;
+        if (err)
+            *err = LWQQ_EC_ERROR;
         goto done;
     }
 
@@ -328,7 +331,8 @@ done:
     return ;
 
 json_error:
-    *err = LWQQ_EC_ERROR;
+    if (err)
+        *err = LWQQ_EC_ERROR;
     /* Free temporary string */
     if (json)
         json_free_value(&json);
@@ -436,10 +440,6 @@ void lwqq_info_get_group_name_list(LwqqClient *lc, LwqqErrorCode *err)
     json_t *json = NULL, *json_tmp;
     char *cookies;
 
-    if (!err) {
-        return ;
-    }
-    
     /* Create post data: {"h":"hello","vfwebqq":"4354j53h45j34"} */
     create_post_data(lc, msg, sizeof(msg));
 
@@ -459,7 +459,8 @@ void lwqq_info_get_group_name_list(LwqqClient *lc, LwqqErrorCode *err)
     }
     ret = req->do_request(req, 1, msg);
     if (ret || req->http_code != 200) {
-        *err = LWQQ_EC_HTTP_ERROR;
+        if (err)
+            *err = LWQQ_EC_HTTP_ERROR;
         goto done;
     }
 
@@ -477,7 +478,8 @@ void lwqq_info_get_group_name_list(LwqqClient *lc, LwqqErrorCode *err)
     ret = json_parse_document(&json, req->response);
     if (ret != JSON_OK) {
         lwqq_log(LOG_ERROR, "Parse json object of groups error: %s\n", req->response);
-        *err = LWQQ_EC_ERROR;
+        if (err)
+            *err = LWQQ_EC_ERROR;
         goto done;
     }
 
@@ -506,7 +508,8 @@ done:
     return ;
 
 json_error:
-    *err = LWQQ_EC_ERROR;
+    if (err)
+        *err = LWQQ_EC_ERROR;
     /* Free temporary string */
     if (json)
         json_free_value(&json);
@@ -816,7 +819,8 @@ done:
     return ;
 
 json_error:
-    *err = LWQQ_EC_ERROR;
+    if (err)
+        *err = LWQQ_EC_ERROR;
     /* Free temporary string */
     if (json)
         json_free_value(&json);

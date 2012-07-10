@@ -12,6 +12,7 @@
 #define LWQQ_MSG_H
 
 #include <pthread.h>
+#include "queue.h"
 
 /**
  * define the strings used for poll_type.
@@ -27,12 +28,12 @@ typedef struct LwqqMsgAny {
     char * msg_type; /* must not be changed */
 } LwqqMsgAny;
 
-/** 
+/**
  * Message object, receiving and sending chat message
  * 
  */
 typedef struct LwqqMsgMessage {
-    char * msg_type; /* must not be changed */
+    char * msg_type;            /**< must not be changed */
 
     char *from;                 /**< Message sender(qqnumber) */
     char *to;                   /**< Message receiver(qqnumber) */
@@ -77,6 +78,7 @@ typedef union LwqqMsg {
  * @return NULL on failure
  */
 LwqqMsg *lwqq_msg_new(const char *msg_type, ...);
+
 /** 
  * Free a LwqqMsg object
  * 
